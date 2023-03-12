@@ -40,8 +40,8 @@ class VideoComponents {
 
 			foreach (i, ref error ; loader.errors) {
 				stderr.writefln("Error %d", i + 1);
-				stderr.writefln("Error: %s", error.error);
-				stderr.writefln("Info: %s", error.message);
+				stderr.writefln("Error: %s", fromStringz(error.error));
+				stderr.writefln("Info: %s", fromStringz(error.message));
 			}
 
 			exit(1);
