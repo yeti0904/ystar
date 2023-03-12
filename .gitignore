@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/ystar
+ystar.so
+ystar.dylib
+ystar.dll
+ystar.a
+ystar.lib
+ystar-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
