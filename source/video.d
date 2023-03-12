@@ -44,6 +44,14 @@ class VideoComponents {
 				stderr.writefln("Info: %s", fromStringz(error.message));
 			}
 
+			SDL_version sdlVersion;
+			SDL_GetVersion(&sdlVersion);
+
+			stderr.writefln(
+				"SDL Version: %d.%d.%d",
+				sdlVersion.major, sdlVersion.minor, sdlVersion.patch
+			);
+			
 			exit(1);
 		}
 		version (Windows) {
