@@ -22,7 +22,8 @@ class App {
 					break;
 				}
 				case SDL_MOUSEMOTION: {
-					raycaster.player.direction += cast(float) e.motion.xrel;
+					raycaster.player.direction   += cast(float) e.motion.xrel;
+					raycaster.player.upDirection += cast(float) -(e.motion.yrel * 4);
 					break;
 				}
 				case SDL_KEYDOWN: {

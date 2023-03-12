@@ -5,6 +5,8 @@ import core.stdc.stdlib;
 import bindbc.sdl;
 import types;
 
+import loader = bindbc.loader.sharedlib;
+
 class VideoComponents {
 	SDL_Window*   window;
 	SDL_Renderer* renderer;
@@ -35,6 +37,13 @@ class VideoComponents {
 		SDLSupport support = loadSDL();
 		if (support != sdlSupport) {
 			stderr.writeln("Failed to load SDL");
+
+			foreach (i, ref error ; loader.errors) {
+				stderr.writefln("Error %d", i + 1);
+				stderr.writefln("Error: %s", error.error);
+				stderr.writefln("Info: %s", error.message);
+			}
+
 			exit(1);
 		}
 		version (Windows) {

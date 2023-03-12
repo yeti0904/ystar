@@ -27,4 +27,11 @@ struct Vec2(T) {
 			y + SinDeg(direction) * multiplier
 		);
 	}
+
+	float DistanceTo(Vec2!T other) {
+		float width  = abs(other.x - x);
+		float height = abs(other.y - y);
+
+		return sqrt(width * width + height * height);
+	}
 }

@@ -237,7 +237,8 @@ class Raycaster {
 
 			int wallHeight = cast(int) round(1.0 / ray.distance * video.windowSize.y);
 
-			int yOffset = cast(int) (player.up * wallHeight);
+			int yOffset  = cast(int) (player.up * wallHeight);
+			yOffset     += cast(int) player.upDirection;
 
 			if (wallHeight < 0) {
 				wallHeight = 0;
