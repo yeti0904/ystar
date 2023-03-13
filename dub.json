@@ -8,5 +8,8 @@
 	},
 	"description": "A minimal D application.",
 	"license": "MIT",
-	"name": "ystar"
+	"name": "ystar",
+	"versions": [
+		"SDL_Image_200"
+	]
 }

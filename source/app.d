@@ -1,7 +1,8 @@
 import std.stdio;
 import bindbc.sdl;
-import raycaster;
 import video;
+import raycaster;
+import textures;
 
 class App {
 	bool      running = true;
@@ -10,6 +11,10 @@ class App {
 	this() {
 		raycaster = new Raycaster();
 		VideoComponents.Instance().Init("ystar example");
+
+		auto textures = GameTextures.Instance();
+
+		textures.LoadTexture(Texture.Bricks, "bricks.png");
 	}
 
 	void Update() {

@@ -1,6 +1,7 @@
 import std.math;
 import std.algorithm;
 import bindbc.sdl;
+import textures;
 import level;
 import player;
 import types;
@@ -12,6 +13,7 @@ struct RayHit {
 	float      distance;
 	float      direction;
 	Vec2!float hitPosition;
+	bool       horizontal;
 }
 
 class Raycaster {
@@ -49,19 +51,19 @@ class Raycaster {
 		auto video = VideoComponents.Instance();
 	
 		RayHit ret;
-		float      direction = player.direction +
+		float direction = player.direction +
 			Atan2Deg(
-				angleOffset - video.windowSize.x,
+				angleOffset - video.windowSize.x / 2,
 				(video.windowSize.x / 2 / TanDeg(Raycaster.fov / 2))
 			);
 		Vec2!float dir      = Vec2!float(
-			CosDeg(direction + angleOffset), SinDeg(direction + angleOffset)
+			CosDeg(direction), SinDeg(direction)
 		);
 		Vec2!float gradient = Vec2!float(dir.x / dir.y, dir.y / dir.x);
 		Vec2!float unitStepSize;
 		Vec2!float stepSize;
 
-		ret.direction = direction + angleOffset;
+		ret.direction = direction;
 
 		unitStepSize.x = sqrt(1 + (gradient.y * gradient.y));
 		unitStepSize.y = sqrt((gradient.x * gradient.x) + 1);
@@ -92,6 +94,7 @@ class Raycaster {
 		}
 
 		float distance;
+		bool  horizontal;
 
 		while (true) {
 			Vec2!int posInt = Vec2!int(cast(int) pos.x, cast(int) pos.y);
@@ -106,8 +109,6 @@ class Raycaster {
 				break;
 			}
 
-			bool horizontal = false;
-
 			if (len.x < len.y) {
 				pos.x      += stepSize.x;
 				distance    = len.x;
@@ -115,9 +116,10 @@ class Raycaster {
 				horizontal  = true;
 			}
 			else {
-				pos.y    += stepSize.y;
-				distance  = len.y;
-				len.y    += unitStepSize.y;
+				pos.y      += stepSize.y;
+				distance    = len.y;
+				len.y      += unitStepSize.y;
+				horizontal  = false;
 			}
 		}
 
@@ -129,6 +131,7 @@ class Raycaster {
 		ret.tile        = level.tiles[cast(int) pos.y][cast(int) pos.x];
 		ret.distance    = distance;
 		ret.hitPosition = hitPosition;
+		ret.horizontal  = horizontal;
 
 		return ret;
 	}
@@ -254,13 +257,14 @@ class Raycaster {
 	}
 
 	void Render3D() {
-		auto video = VideoComponents.Instance();
+		auto video    = VideoComponents.Instance();
+		auto textures = GameTextures.Instance();
 
 		SDL_SetRenderDrawColor(video.renderer, 0, 0, 0, 255);
 		SDL_RenderClear(video.renderer);
 
 		int wallPos = 0;
-		for (float i = 0 - (Raycaster.fov / 2); i < Raycaster.fov / 2; i += 0.1) {
+		for (float i = 0; i < cast(float) video.windowSize.x; ++i) {
 			auto ray = Raycast(i);
 
 			ray.distance *= CosDeg(player.direction - ray.direction);
@@ -284,11 +288,37 @@ class Raycaster {
 				video.renderer, brightness, brightness, brightness, 255
 			);
 
-			SDL_RenderDrawLine(
+			/*SDL_RenderDrawLine(
 				video.renderer, wallPos, (halfWin - wallHeight / 2) + yOffset,
 				wallPos, (halfWin + wallHeight / 2) + yOffset
-			);
+			);*/
 
+			auto texture = textures.textures[Texture.Bricks];
+
+			SDL_Rect dest;
+			dest.x = wallPos;
+			dest.y = (halfWin - wallHeight / 2) + yOffset;
+			dest.w = 1;
+			dest.h = wallHeight;
+
+			Vec2!int textureSize;
+			SDL_QueryTexture(texture, null, null, &textureSize.x, &textureSize.y);
+
+			SDL_Rect src;
+			src.y = 0;
+			src.w = 1;
+			src.h = textureSize.y;
+
+			if (ray.horizontal) {
+				src.x = cast(int)
+					((ray.hitPosition.y - floor(ray.hitPosition.y)) * textureSize.x);
+			}
+			else {
+				src.x = cast(int)
+					((ray.hitPosition.x - floor(ray.hitPosition.x)) * textureSize.x);
+			}
+
+			SDL_RenderCopy(video.renderer, texture, &src, &dest);
 			++ wallPos;
 		}
 	}

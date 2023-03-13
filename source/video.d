@@ -65,7 +65,7 @@ class VideoComponents {
 		}
 
 		// window
-		windowSize = Vec2!int(640, 480);
+		windowSize = Vec2!int(900, 450);
 		window = SDL_CreateWindow(
 			cast(char*) toStringz(windowName),
 			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -87,7 +87,7 @@ class VideoComponents {
 		}
 
 		// SDL_RenderSetScale(renderer, 8.0, 8.0);
-		SDL_RenderSetLogicalSize(renderer, 900, 450);
+		SDL_RenderSetLogicalSize(renderer, windowSize.x, windowSize.y);
 	}
 
 	void SetHexColour(uint colour) {
