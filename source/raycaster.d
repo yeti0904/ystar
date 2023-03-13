@@ -46,15 +46,22 @@ class Raycaster {
 	}
 
 	RayHit Raycast(float angleOffset) {
+		auto video = VideoComponents.Instance();
+	
 		RayHit ret;
+		float      direction = player.direction +
+			Atan2Deg(
+				angleOffset - video.windowSize.x,
+				(video.windowSize.x / 2 / TanDeg(Raycaster.fov / 2))
+			);
 		Vec2!float dir      = Vec2!float(
-			CosDeg(player.direction + angleOffset), SinDeg(player.direction + angleOffset)
+			CosDeg(direction + angleOffset), SinDeg(direction + angleOffset)
 		);
 		Vec2!float gradient = Vec2!float(dir.x / dir.y, dir.y / dir.x);
 		Vec2!float unitStepSize;
 		Vec2!float stepSize;
 
-		ret.direction = player.direction + angleOffset;
+		ret.direction = direction + angleOffset;
 
 		unitStepSize.x = sqrt(1 + (gradient.y * gradient.y));
 		unitStepSize.y = sqrt((gradient.x * gradient.x) + 1);
@@ -128,21 +135,37 @@ class Raycaster {
 
 	void HandleInput(const ubyte* keystate) {
 		const float distance = 0.025;
+
+		auto oldPos = player.pos;
+
+		void MovePlayer(Vec2!float newPos) {
+			player.pos.x = newPos.x;
+
+			if (PlayerInsideBlock()) {
+				player.pos.x = oldPos.x;
+			}
+
+			player.pos.y = newPos.y;
+
+			if (PlayerInsideBlock()) {
+				player.pos.y = oldPos.y;
+			}
+		}
 	
 		if (keystate[SDL_SCANCODE_W]) {
-			player.pos = player.pos.MoveInDirection(player.direction, distance);
+			MovePlayer(player.pos.MoveInDirection(player.direction, distance));
 		}
 		
 		if (keystate[SDL_SCANCODE_S]) {
-			player.pos = player.pos.MoveInDirection(player.direction + 180, distance);
+			MovePlayer(player.pos.MoveInDirection(player.direction + 180, distance));
 		}
 
 		if (keystate[SDL_SCANCODE_A]) {
-			player.pos = player.pos.MoveInDirection(player.direction - 90, distance);
+			MovePlayer(player.pos.MoveInDirection(player.direction - 90, distance));
 		}
 
 		if (keystate[SDL_SCANCODE_D]) {
-			player.pos = player.pos.MoveInDirection(player.direction + 90, distance);
+			MovePlayer(player.pos.MoveInDirection(player.direction + 90, distance));
 		}
 
 		if (keystate[SDL_SCANCODE_LEFT]) {
@@ -152,6 +175,15 @@ class Raycaster {
 		if (keystate[SDL_SCANCODE_RIGHT]) {
 			player.direction += 5.0;
 		}
+	}
+
+	bool PlayerInsideBlock() {
+		Vec2!int playerTile = Vec2!int(
+			cast(int) floor(player.pos.x),
+			cast(int) floor(player.pos.y)
+		);
+
+		return level.tiles[playerTile.y][playerTile.x].type != TileType.Empty;
 	}
 
 	void Render2D() {

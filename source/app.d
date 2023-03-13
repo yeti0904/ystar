@@ -22,14 +22,25 @@ class App {
 					break;
 				}
 				case SDL_MOUSEMOTION: {
+					auto video = VideoComponents.Instance();
+				
 					raycaster.player.direction   += cast(float) e.motion.xrel;
 					raycaster.player.upDirection += cast(float) -(e.motion.yrel * 4);
+
+					if (raycaster.player.upDirection > video.windowSize.y) {
+						raycaster.player.upDirection = video.windowSize.y;
+					}
+					if (raycaster.player.upDirection < -video.windowSize.y) {
+						raycaster.player.upDirection = -video.windowSize.y;
+					}
 					break;
 				}
 				case SDL_KEYDOWN: {
 					switch (e.key.keysym.scancode) {
 						case SDL_SCANCODE_SPACE: {
-							raycaster.player.upVelocity = 0.1;
+							if (raycaster.player.up == 0.0) {
+								raycaster.player.upVelocity = 0.1;
+							}
 							break;
 						}
 						default: break;

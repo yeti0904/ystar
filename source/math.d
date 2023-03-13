@@ -11,3 +11,7 @@ float SinDeg(float degrees) {
 float TanDeg(float degrees) {
 	return tan(degrees * (PI / 180));
 }
+
+float Atan2Deg(float a, float b) {
+	return atan2(a, b) * (PI / 180);
+}
